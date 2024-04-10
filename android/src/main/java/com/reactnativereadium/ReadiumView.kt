@@ -78,6 +78,11 @@ class ReadiumView(
             payload
           )
         }
+
+        is ReaderViewModel.Event.Failure -> TODO()
+        ReaderViewModel.Event.OpenDrmManagementRequested -> TODO()
+        ReaderViewModel.Event.OpenOutlineRequested -> TODO()
+        ReaderViewModel.Event.StartNewSearch -> TODO()
       }
     }
   }

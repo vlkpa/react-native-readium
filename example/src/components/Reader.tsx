@@ -67,6 +67,7 @@ export const Reader: React.FC = () => {
             <TableOfContents
               items={toc}
               onPress={(loc) => setLocation({ href: loc.href, type: 'application/xhtml+xml', title: loc.title })}
+              // onPress={(loc) => setLocation(loc)}
             />
           </View>
           <View style={styles.button}>

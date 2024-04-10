@@ -1,7 +1,7 @@
 buildscript {
   // Buildscript is evaluated before everything else so we can't use getExtOrDefault
   def kotlin_version = rootProject.ext.has('kotlinVersion') ? rootProject.ext.get('kotlinVersion') : project.properties['Readium_kotlinVersion']
-  ext.readium_version = '2.2.1'
+  ext.readium_version = '2.4.0'
 
   repositories {
     google()
@@ -10,7 +10,7 @@ buildscript {
   }
 
   dependencies {
-    classpath 'com.android.tools.build:gradle:4.2.2'
+    classpath 'com.android.tools.build:gradle:7.3.1'
     // noinspection DifferentKotlinGradleVersion
     classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
   }
@@ -60,7 +60,6 @@ android {
 
 repositories {
 
-  maven { url 'https://jitpack.io' }
 
   mavenCentral()
   jcenter()
@@ -138,11 +137,14 @@ dependencies {
   // noinspection GradleDynamicVersion
   api "com.facebook.react:react-native:+"
   implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+  implementation(platform("org.jetbrains.kotlin:kotlin-bom:1.8.0"))
 
   // readium deps
-  implementation "com.github.readium.kotlin-toolkit:readium-shared:$readium_version"
-  implementation "com.github.readium.kotlin-toolkit:readium-streamer:$readium_version"
-  implementation ("com.github.readium.kotlin-toolkit:readium-navigator:$readium_version") {
+  implementation "org.readium.kotlin-toolkit:readium-shared:$readium_version"
+  implementation "org.readium.kotlin-toolkit:readium-streamer:$readium_version"
+  implementation "org.readium.kotlin-toolkit:readium-lcp:$readium_version"
+  implementation "org.readium.kotlin-toolkit:readium-adapter-pdfium:$readium_version"
+  implementation ("org.readium.kotlin-toolkit:readium-navigator:$readium_version") {
     // this package doesn't provide audio playback, so remove exoplayer
     // transitive deps to avoid potential collisions with other projects.
     exclude group: "com.google.android.exoplayer"

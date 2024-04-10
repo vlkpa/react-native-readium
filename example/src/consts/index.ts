@@ -2,6 +2,7 @@ import RNFS from 'react-native-fs';
 import type { Locator } from 'react-native-readium';
 
 export * from './DEFAULT_SETTINGS';
+
 export const EPUB_URL = `https://test.opds.io/assets/moby/file.epub`;
 export const EPUB_PATH = `${RNFS.DocumentDirectoryPath}/moby-dick.epub`;
 export const INITIAL_LOCATION: Locator = {
@@ -15,3 +16,15 @@ export const INITIAL_LOCATION: Locator = {
     totalProgression: 0.03392330383480826
   },
 };
+
+//PDF
+// export const EPUB_URL = `https://tcpdf.org/files/examples/example_045.pdf`;
+// export const EPUB_PATH = `${RNFS.DocumentDirectoryPath}/moby-dick-2.pdf`;
+// export const INITIAL_LOCATION: Locator = {
+//   href: '/moby-dick-2.pdf',
+//   title: 'Chapter 2 - The Carpet-Bag',
+//   target: 27,
+//   type: 'application/pdf',
+//   // locations: {fragments: ["page=10"], "position": 10, "progression": 0.5625, "totalProgression": 0.5625},
+//
+// };

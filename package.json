@@ -76,11 +76,13 @@
     "react": "^18.2.0",
     "react-native": "^0.70.6",
     "release-it": "^14.2.2",
-    "typescript": "^4.1.3"
+    "typescript": "^4.1.3",
+    "url": "^0.11.3"
   },
   "peerDependencies": {
     "react": "*",
-    "react-native": "*"
+    "react-native": "*",
+    "url": "*"
   },
   "jest": {
     "preset": "react-native",
