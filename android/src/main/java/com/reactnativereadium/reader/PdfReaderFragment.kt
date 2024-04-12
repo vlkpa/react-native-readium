@@ -6,6 +6,7 @@
 
 package com.reactnativereadium.reader
 
+import android.graphics.PointF
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -14,11 +15,7 @@ import androidx.fragment.app.commitNow
 import androidx.lifecycle.ViewModelProvider
 import com.facebook.react.util.RNLog
 import com.reactnativereadium.R
-import org.readium.adapters.pdfium.navigator.PdfiumDocumentFragment
 import org.readium.adapters.pdfium.navigator.PdfiumEngineProvider
-import org.readium.adapters.pdfium.navigator.PdfiumPreferences
-import org.readium.adapters.pdfium.navigator.PdfiumPreferencesEditor
-import org.readium.adapters.pdfium.navigator.PdfiumSettings
 import org.readium.r2.navigator.Navigator
 import org.readium.r2.navigator.pdf.PdfNavigatorFactory
 import org.readium.r2.navigator.pdf.PdfNavigatorFragment
@@ -98,6 +95,13 @@ class PdfReaderFragment : VisualReaderFragment(), PdfNavigatorFragment.Listener 
 
     RNLog.e(message)
   }
+
+  override fun onTap(point: PointF): Boolean {
+//    println("On tap PDF ---")
+//    requireActivity().toggleSystemUi()
+    return true
+  }
+
 
   companion object {
     const val NAVIGATOR_FRAGMENT_TAG = "navigator"

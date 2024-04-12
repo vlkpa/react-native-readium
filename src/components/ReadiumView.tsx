@@ -12,6 +12,7 @@ export type ReadiumProps = BaseReadiumViewProps;
 export const ReadiumView: React.FC<ReadiumProps> = ({
   onLocationChange: wrappedOnLocationChange,
   onTableOfContents: wrappedOnTableOfContents,
+  onSearch: wrappedOnSearch,
   settings: unmappedSettings,
   ...props
 }) => {
@@ -42,6 +43,15 @@ export const ReadiumView: React.FC<ReadiumProps> = ({
       }
     },
     [wrappedOnLocationChange]
+  );
+
+  const onSearch = useCallback(
+    (event: any) => {
+      if (wrappedOnSearch) {
+        wrappedOnSearch(event.nativeEvent?.locators);
+      }
+    },
+    [wrappedOnSearch]
   );
 
   const onTableOfContents = useCallback(
@@ -93,6 +103,7 @@ export const ReadiumView: React.FC<ReadiumProps> = ({
         {...props}
         onLocationChange={onLocationChange}
         onTableOfContents={onTableOfContents}
+        onSearch={onSearch}
         settings={unmappedSettings ? Settings.map(unmappedSettings) : undefined}
         ref={ref}
       />

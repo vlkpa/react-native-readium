@@ -41,6 +41,13 @@ class ReadiumViewManager(
           MapBuilder.of("bubbled", ON_TABLE_OF_CONTENTS)
         )
       )
+      .put(
+        ON_SEARCH,
+        MapBuilder.of(
+          "phasedRegistrationNames",
+          MapBuilder.of("bubbled", ON_SEARCH)
+        )
+      )
       .build()
   }
 
@@ -117,6 +124,11 @@ class ReadiumViewManager(
     view.updateSettingsFromMap(settings.toHashMap())
   }
 
+  @ReactProp(name = "searchQuery")
+  fun setSearchQuery(view: ReadiumView, searchQuery: String) {
+    view.search(searchQuery)
+  }
+
   @ReactPropGroup(names = ["width", "height"], customType = "Style")
   fun setStyle(view: ReadiumView?, index: Int, value: Int) {
     if (index == 0) {
@@ -141,6 +153,7 @@ class ReadiumViewManager(
   companion object {
     var ON_LOCATION_CHANGE = "onLocationChange"
     var ON_TABLE_OF_CONTENTS = "onTableOfContents"
+    var ON_SEARCH = "onSearch"
     var COMMAND_CREATE = 1
   }
 }
