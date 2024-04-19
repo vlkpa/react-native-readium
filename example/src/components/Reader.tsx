@@ -50,7 +50,7 @@ export const Reader: React.FC = () => {
         }
 
         setFile({
-          url: EPUB_PATH,
+          url: EPUB_URL,
           initialLocation: INITIAL_LOCATION,
         });
       }

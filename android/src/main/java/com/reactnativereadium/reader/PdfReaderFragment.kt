@@ -16,9 +16,11 @@ import androidx.lifecycle.ViewModelProvider
 import com.facebook.react.util.RNLog
 import com.reactnativereadium.R
 import org.readium.adapters.pdfium.navigator.PdfiumEngineProvider
+import org.readium.adapters.pdfium.navigator.PdfiumPreferences
 import org.readium.r2.navigator.Navigator
 import org.readium.r2.navigator.pdf.PdfNavigatorFactory
 import org.readium.r2.navigator.pdf.PdfNavigatorFragment
+import org.readium.r2.navigator.preferences.Fit
 import org.readium.r2.shared.ExperimentalReadiumApi
 import org.readium.r2.shared.fetcher.Resource
 import org.readium.r2.shared.publication.Link
@@ -59,9 +61,10 @@ class PdfReaderFragment : VisualReaderFragment(), PdfNavigatorFragment.Listener 
       navigatorFactory.createFragmentFactory(
         initialLocator = model.initialLocation,
         listener = this,
+        initialPreferences = PdfiumPreferences(fit=Fit.CONTAIN,pageSpacing = 100.0)
       )
 
-    setHasOptionsMenu(true)
+//    setHasOptionsMenu(true)
     super.onCreate(savedInstanceState)
   }
 
@@ -97,7 +100,7 @@ class PdfReaderFragment : VisualReaderFragment(), PdfNavigatorFragment.Listener 
   }
 
   override fun onTap(point: PointF): Boolean {
-//    println("On tap PDF ---")
+    println("On tap PDF ---")
 //    requireActivity().toggleSystemUi()
     return true
   }

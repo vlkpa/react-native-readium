@@ -3,8 +3,10 @@ import type { Locator } from 'react-native-readium';
 
 export * from './DEFAULT_SETTINGS';
 
-export const EPUB_URL = `https://test.opds.io/assets/moby/file.epub`;
-export const EPUB_PATH = `${RNFS.DocumentDirectoryPath}/moby-dick.epub`;
+// export const EPUB_URL = `https://filebin.net/tswgizhlz526ceu7/epubTest.lcpl`;
+// export const EPUB_PATH = `${RNFS.DocumentDirectoryPath}/epubTest.lcpl`;
+export const EPUB_URL = `https://filebin.net/iyy11qz0dsq3qwu2/pdfTest.lcpl`;
+export const EPUB_PATH = `${RNFS.DocumentDirectoryPath}/pdfTest.lcpl`;
 export const INITIAL_LOCATION: Locator = {
   href: '/OPS/main3.xml',
   title: 'Chapter 2 - The Carpet-Bag',

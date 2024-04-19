@@ -22,6 +22,7 @@ class ReadiumView(
 ) : FrameLayout(reactContext) {
   var dimensions: Dimensions = Dimensions(0,0)
   var file: File? = null
+  var fileUrl: String? = null
   var fragment: BaseReaderFragment? = null
   var isViewInitialized: Boolean = false
   var lateInitSettings: Map<String, Any>? = null

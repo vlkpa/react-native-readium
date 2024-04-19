@@ -64,7 +64,8 @@ class ReadiumViewManager(
       COMMAND_CREATE -> {
         view.isViewInitialized = true
 
-        if (view.file != null) {
+//        if (view.file != null) {
+        if (view.fileUrl != null) {
           buildForViewIfReady(view)
         }
       }
@@ -75,8 +76,8 @@ class ReadiumViewManager(
 
   @ReactProp(name = "file")
   fun setFile(view: ReadiumView, file: ReadableMap) {
-    val path = (file.getString("url") ?: "")
-      .replace("^(file:/+)?(/.*)$".toRegex(), "$2")
+//    val path = (file.getString("url") ?: "")
+//      .replace("^(file:/+)?(/.*)$".toRegex(), "$2")
     val location = file.getMap("initialLocation")
     var initialLocation: LinkOrLocator? = null
 
@@ -84,7 +85,9 @@ class ReadiumViewManager(
       initialLocation = locationToLinkOrLocator(location)
     }
 
-    view.file = File(path, initialLocation)
+//    view.file = File(path, initialLocation)
+//    view.file = File(path, initialLocation)
+    view.fileUrl = file.getString("url")
     this.buildForViewIfReady(view)
   }
 
@@ -140,10 +143,12 @@ class ReadiumViewManager(
   }
 
   private fun buildForViewIfReady(view: ReadiumView) {
-    var file = view.file
-    if (file != null && view.isViewInitialized) {
+//    var file = view.file
+    var fileUrl = view.fileUrl
+    var initialLocator = null
+    if (fileUrl != null && view.isViewInitialized) {
       runBlocking {
-        svc.openPublication(file.path, file.initialLocation) { fragment ->
+        svc.openPublication(fileUrl, initialLocator) { fragment ->
           view.addFragment(fragment)
         }
       }
