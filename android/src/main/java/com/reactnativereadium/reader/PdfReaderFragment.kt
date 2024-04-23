@@ -100,8 +100,7 @@ class PdfReaderFragment : VisualReaderFragment(), PdfNavigatorFragment.Listener 
   }
 
   override fun onTap(point: PointF): Boolean {
-    println("On tap PDF ---")
-//    requireActivity().toggleSystemUi()
+    this.channel.send(ReaderViewModel.Event.OnTap)
     return true
   }
 

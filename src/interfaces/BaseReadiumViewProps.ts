@@ -17,4 +17,5 @@ export type BaseReadiumViewProps = {
   width?: number;
   searchQuery?: string;
   onSearch?: (result: Locator[]) => void;
+  onPressContent?: () => void;
 };

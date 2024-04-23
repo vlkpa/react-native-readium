@@ -41,7 +41,7 @@ abstract class BaseReaderFragment : Fragment() {
     val viewScope = viewLifecycleOwner.lifecycleScope
 
     channel.send(ReaderViewModel.Event.TableOfContentsLoaded(model.publication.tableOfContents))
-    navigator.currentLocator.debounce(200)
+    navigator.currentLocator
       .onEach { channel.send(ReaderViewModel.Event.LocatorUpdate(it)) }
       .launchIn(viewScope)
   }

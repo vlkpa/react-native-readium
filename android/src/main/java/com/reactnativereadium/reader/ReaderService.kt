@@ -81,92 +81,61 @@ class ReaderService(
 
     return null
   }
-  sealed class ImportException(
-    message: String? = null,
-    cause: Throwable? = null
-  ) : Exception(message, cause) {
 
-    class LcpAcquisitionFailed(
-      cause: Throwable
-    ) : ImportException(cause = cause)
-
-    object IOException : ImportException()
-
-    object ImportDatabaseFailed : ImportException()
-
-    class UnableToOpenPublication(
-      val exception: Publication.OpeningException
-    ) : ImportException(cause = exception)
-  }
   suspend fun openPublication(
-    url: String,
+    fileName: String,
     initialLocation: LinkOrLocator?,
     callback: suspend (fragment: BaseReaderFragment) -> Unit
   ) {
-    val contentUri = Uri.parse(url)
+    val tempFile = File(fileName)
+    val sourceMediaType = tempFile.mediaType()
+    val publicationAsset: FileAsset =
+      if (sourceMediaType != MediaType.LCP_LICENSE_DOCUMENT)
+        FileAsset(tempFile, sourceMediaType)
+      else {
+        readium.lcpService
+          .flatMap { it.acquirePublication(tempFile) }
+          .fold(
+            {
+              val mediaType =
+                MediaType.of(fileExtension = File(it.suggestedFilename).extension)
+              FileAsset(it.localFile, mediaType)
+            },
+            {
+              RNLog.w(reactContext, "Error - lcpService $it")
+              tryOrNull { tempFile.delete() }
+              return println("Error - lcpService $it")
+            }
+          )
+      }
 
-     contentUri.copyToTempFile(reactContext, File(reactContext.filesDir.path  + "/"))
-        .mapFailure {  ImportException.IOException }
-        .map { file->
 
-              RNLog.w(reactContext, "url $url")
-              RNLog.w(reactContext, "contentUri $contentUri")
-              RNLog.w(reactContext, "file $file")
-              val sourceMediaType = file.mediaType()
-                RNLog.w(reactContext, "sourceMediaType $sourceMediaType")
-                val publicationAsset: FileAsset =
-                  if (sourceMediaType != MediaType.LCP_LICENSE_DOCUMENT)
-                    FileAsset(file, sourceMediaType)
-                  else {
-                    RNLog.w(reactContext, "lcpService $file")
-                    readium.lcpService
-                      .flatMap {
-
-                        RNLog.w(reactContext, "is protected ${it.isLcpProtected(file)}")
-                        it.acquirePublication(file)
-                      }
-                      .fold(
-                        {
-                          RNLog.w(reactContext, "fold - acquirePublication $it")
-                          val mediaType =
-                            MediaType.of(fileExtension = File(it.suggestedFilename).extension)
-                          FileAsset(it.localFile, mediaType)
-                        },
-                        {
-                          RNLog.w(reactContext, "Error - lcpService $it")
-                          tryOrNull { file.delete() }
-                          return println("Error - lcpService $it")
-                        }
-                      )
-                  }
-
-                readium.streamer.open(
-                  publicationAsset,
-                  allowUserInteraction = false,
-                  sender = reactContext
-                )
-                  .onSuccess { it ->
-                    if (it.isRestricted) {
-                      throw it.protectionError
-                        ?: CancellationException
-                    }
-                    val url = prepareToServe(it)
-                    if (url != null) {
-                      val locator = locatorFromLinkOrLocator(initialLocation, it)
-            //          val readerFragment = EpubReaderFragment.newInstance(url)
-            //          readerFragment.initFactory(it, locator)
-            //          callback.invoke(readerFragment)
-                      createReaderFragment(url, it, locator)?.let {
-                        callback.invoke(it)
-                      }
-                    }
-                  }
-                  .onFailure {
-                    tryOrNull { publicationAsset.file.delete() }
-                    RNLog.w(reactContext, "Error executing ReaderService.openPublication")
-                    // TODO: implement failure event
-                  }
+    readium.streamer.open(
+      publicationAsset,
+      allowUserInteraction = false,
+      sender = reactContext
+    )
+      .onSuccess { it ->
+        if (it.isRestricted) {
+          throw it.protectionError
+            ?: CancellationException
         }
+        val url = prepareToServe(it)
+        if (url != null) {
+          val locator = locatorFromLinkOrLocator(initialLocation, it)
+//          val readerFragment = EpubReaderFragment.newInstance(url)
+//          readerFragment.initFactory(it, locator)
+//          callback.invoke(readerFragment)
+          createReaderFragment(url, it, locator)?.let {
+            callback.invoke(it)
+          }
+        }
+      }
+      .onFailure {
+        tryOrNull { publicationAsset.file.delete() }
+        RNLog.w(reactContext, "Error executing ReaderService.openPublication")
+        // TODO: implement failure event
+      }
   }
 
   private fun createReaderFragment(

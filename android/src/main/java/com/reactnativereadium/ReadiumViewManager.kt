@@ -9,6 +9,9 @@ import com.facebook.react.uimanager.ViewGroupManager
 import com.reactnativereadium.reader.ReaderService
 import com.reactnativereadium.utils.File
 import com.reactnativereadium.utils.LinkOrLocator
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.json.JSONObject
 import org.readium.r2.shared.publication.Link
@@ -18,7 +21,7 @@ class ReadiumViewManager(
   val reactContext: ReactApplicationContext
 ) : ViewGroupManager<ReadiumView>() {
   private var svc = ReaderService(reactContext)
-
+  private val viewScope = CoroutineScope(Dispatchers.Main)
   override fun getName() = "ReadiumView"
 
   override fun createViewInstance(reactContext: ThemedReactContext): ReadiumView {
@@ -48,6 +51,13 @@ class ReadiumViewManager(
           MapBuilder.of("bubbled", ON_SEARCH)
         )
       )
+      .put(
+        ON_PRESS_CONTENT,
+        MapBuilder.of(
+          "phasedRegistrationNames",
+          MapBuilder.of("bubbled", ON_PRESS_CONTENT)
+        )
+      )
       .build()
   }
 
@@ -64,8 +74,7 @@ class ReadiumViewManager(
       COMMAND_CREATE -> {
         view.isViewInitialized = true
 
-//        if (view.file != null) {
-        if (view.fileUrl != null) {
+        if (view.file != null) {
           buildForViewIfReady(view)
         }
       }
@@ -76,8 +85,8 @@ class ReadiumViewManager(
 
   @ReactProp(name = "file")
   fun setFile(view: ReadiumView, file: ReadableMap) {
-//    val path = (file.getString("url") ?: "")
-//      .replace("^(file:/+)?(/.*)$".toRegex(), "$2")
+    val path = (file.getString("url") ?: "")
+      .replace("^(file:/+)?(/.*)$".toRegex(), "$2")
     val location = file.getMap("initialLocation")
     var initialLocation: LinkOrLocator? = null
 
@@ -85,9 +94,7 @@ class ReadiumViewManager(
       initialLocation = locationToLinkOrLocator(location)
     }
 
-//    view.file = File(path, initialLocation)
-//    view.file = File(path, initialLocation)
-    view.fileUrl = file.getString("url")
+    view.file = File(path, initialLocation)
     this.buildForViewIfReady(view)
   }
 
@@ -143,12 +150,10 @@ class ReadiumViewManager(
   }
 
   private fun buildForViewIfReady(view: ReadiumView) {
-//    var file = view.file
-    var fileUrl = view.fileUrl
-    var initialLocator = null
-    if (fileUrl != null && view.isViewInitialized) {
-      runBlocking {
-        svc.openPublication(fileUrl, initialLocator) { fragment ->
+    var file = view.file
+    if (file != null && view.isViewInitialized) {
+      viewScope.launch {
+        svc.openPublication(file.path, file.initialLocation) { fragment ->
           view.addFragment(fragment)
         }
       }
@@ -159,6 +164,7 @@ class ReadiumViewManager(
     var ON_LOCATION_CHANGE = "onLocationChange"
     var ON_TABLE_OF_CONTENTS = "onTableOfContents"
     var ON_SEARCH = "onSearch"
+    var ON_PRESS_CONTENT = "onPressContent"
     var COMMAND_CREATE = 1
   }
 }

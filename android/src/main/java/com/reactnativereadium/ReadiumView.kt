@@ -113,6 +113,14 @@ class ReadiumView(
         ReaderViewModel.Event.OpenDrmManagementRequested -> TODO()
         ReaderViewModel.Event.OpenOutlineRequested -> TODO()
         ReaderViewModel.Event.StartNewSearch -> TODO()
+        ReaderViewModel.Event.OnTap -> {
+          val module = reactContext.getJSModule(RCTEventEmitter::class.java)
+          module.receiveEvent(
+            this.id.toInt(),
+            ReadiumViewManager.ON_PRESS_CONTENT,
+            null
+          )
+        }
       }
     }
   }
