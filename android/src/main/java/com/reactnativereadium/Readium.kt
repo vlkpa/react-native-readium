@@ -29,18 +29,13 @@ class Readium(context: Context) {
     ?.let { Try.success(it) }
     ?: Try.failure(Exception("liblcp is missing on the classpath"))
 
-  val authentication = LcpPassphraseAuthentication(
-    passphrase = "tessst",
-    fallback = LcpDialogAuthentication()
-  )
-
   /**
    * The Streamer is used to open and parse publications.
    */
   val streamer = Streamer(
     context,
     contentProtections = listOfNotNull(
-      lcpService.getOrNull()?.contentProtection(authentication)
+      lcpService.getOrNull()?.contentProtection()
     ),
     // Only required if you want to support PDF files using the PDFium adapter.
     pdfFactory = PdfiumDocumentFactory(context)

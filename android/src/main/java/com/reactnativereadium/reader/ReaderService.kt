@@ -82,8 +82,10 @@ class ReaderService(
     return null
   }
 
+
   suspend fun openPublication(
     fileName: String,
+    passphrase: String?,
     initialLocation: LinkOrLocator?,
     callback: suspend (fragment: BaseReaderFragment) -> Unit
   ) {
@@ -112,22 +114,24 @@ class ReaderService(
 
     readium.streamer.open(
       publicationAsset,
-      allowUserInteraction = false,
-      sender = reactContext
+      credentials = passphrase,
+      allowUserInteraction = true,
+      sender = reactContext.currentActivity
     )
       .onSuccess { it ->
+
         if (it.isRestricted) {
-          throw it.protectionError
-            ?: CancellationException
-        }
-        val url = prepareToServe(it)
-        if (url != null) {
-          val locator = locatorFromLinkOrLocator(initialLocation, it)
-//          val readerFragment = EpubReaderFragment.newInstance(url)
-//          readerFragment.initFactory(it, locator)
-//          callback.invoke(readerFragment)
-          createReaderFragment(url, it, locator)?.let {
-            callback.invoke(it)
+          RNLog.w(reactContext, "protectionError: " + (it.protectionError ?: CancellationException).toString())
+        } else {
+          val url = prepareToServe(it)
+          if (url != null) {
+            val locator = locatorFromLinkOrLocator(initialLocation, it)
+  //          val readerFragment = EpubReaderFragment.newInstance(url)
+  //          readerFragment.initFactory(it, locator)
+  //          callback.invoke(readerFragment)
+            createReaderFragment(url, it, locator)?.let {
+              callback.invoke(it)
+            }
           }
         }
       }

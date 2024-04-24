@@ -88,13 +88,14 @@ class ReadiumViewManager(
     val path = (file.getString("url") ?: "")
       .replace("^(file:/+)?(/.*)$".toRegex(), "$2")
     val location = file.getMap("initialLocation")
+    val passphrase = file.getString("passphrase")
     var initialLocation: LinkOrLocator? = null
 
     if (location != null) {
       initialLocation = locationToLinkOrLocator(location)
     }
 
-    view.file = File(path, initialLocation)
+    view.file = File(path, passphrase, initialLocation)
     this.buildForViewIfReady(view)
   }
 
@@ -153,7 +154,7 @@ class ReadiumViewManager(
     var file = view.file
     if (file != null && view.isViewInitialized) {
       viewScope.launch {
-        svc.openPublication(file.path, file.initialLocation) { fragment ->
+        svc.openPublication(file.path, file.passphrase, file.initialLocation) { fragment ->
           view.addFragment(fragment)
         }
       }
