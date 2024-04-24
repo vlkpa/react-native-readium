@@ -31,6 +31,7 @@ export const Reader: React.FC = () => {
         setFile({
           url: EPUB_URL,
           initialLocation: INITIAL_LOCATION,
+          passphrase: 'tessst',
         });
       } else {
         const exists = await RNFS.exists(EPUB_PATH);
@@ -50,8 +51,9 @@ export const Reader: React.FC = () => {
         }
 
         setFile({
-          url: EPUB_URL,
+          url: EPUB_PATH,
           initialLocation: INITIAL_LOCATION,
+          passphrase: 'tessst',
         });
       }
     }
