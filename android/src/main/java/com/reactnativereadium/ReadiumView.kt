@@ -13,6 +13,9 @@ import com.reactnativereadium.utils.Dimensions
 import com.reactnativereadium.utils.File
 import com.reactnativereadium.utils.LinkOrLocator
 import org.readium.r2.shared.extensions.toMap
+import com.facebook.react.bridge.WritableMap
+import kotlinx.coroutines.*
+import org.readium.r2.shared.publication.Locator
 
 class ReadiumView(
   val reactContext: ThemedReactContext
@@ -22,12 +25,38 @@ class ReadiumView(
   var fragment: BaseReaderFragment? = null
   var isViewInitialized: Boolean = false
   var lateInitSettings: Map<String, Any>? = null
+  private val viewScope = CoroutineScope(Dispatchers.Main)
 
   fun updateLocation(location: LinkOrLocator) : Boolean {
     if (fragment == null) {
       return false
     } else {
-      return this.fragment!!.go(location, true)
+      return this.fragment!!.go(location, false)
+    }
+  }
+
+  fun search(query: String) : Boolean {
+       if (fragment == null) {
+      return false
+    } else {
+      val id = this.id.toInt()
+      val module = reactContext.getJSModule(RCTEventEmitter::class.java)
+      val map: WritableMap = Arguments.createMap()
+      viewScope.launch {
+        try {
+          val iterator = fragment!!.search(query)
+          val locatorList = mutableListOf<Locator>()
+          iterator?.forEach { result ->
+            locatorList.addAll(result.locators)
+          }
+          val locatorMap = locatorList.map { it.toJSON().toMap() }
+          val payload = Arguments.makeNativeMap(mapOf("locators" to locatorMap))
+          module.receiveEvent(id, ReadiumViewManager.ON_SEARCH, payload)
+        } catch (e: Exception) {
+          module.receiveEvent(id, ReadiumViewManager.ON_SEARCH, map)
+        }
+      }
+      return true
     }
   }
 
@@ -76,6 +105,19 @@ class ReadiumView(
             this.id.toInt(),
             ReadiumViewManager.ON_TABLE_OF_CONTENTS,
             payload
+          )
+        }
+
+        is ReaderViewModel.Event.Failure -> TODO()
+        ReaderViewModel.Event.OpenDrmManagementRequested -> TODO()
+        ReaderViewModel.Event.OpenOutlineRequested -> TODO()
+        ReaderViewModel.Event.StartNewSearch -> TODO()
+        ReaderViewModel.Event.OnTap -> {
+          val module = reactContext.getJSModule(RCTEventEmitter::class.java)
+          module.receiveEvent(
+            this.id.toInt(),
+            ReadiumViewManager.ON_PRESS_CONTENT,
+            null
           )
         }
       }

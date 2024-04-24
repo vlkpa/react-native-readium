@@ -110,6 +110,7 @@ class ReaderViewModel(
         object OpenOutlineRequested : Event()
         object OpenDrmManagementRequested : Event()
         object StartNewSearch : Event()
+        object OnTap : Event()
         class Failure(val error: UserException) : Event()
         class LocatorUpdate(val locator: Locator) : Event()
         class TableOfContentsLoaded(val toc: List<Link>) : Event()

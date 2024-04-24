@@ -9,6 +9,9 @@ import com.facebook.react.uimanager.ViewGroupManager
 import com.reactnativereadium.reader.ReaderService
 import com.reactnativereadium.utils.File
 import com.reactnativereadium.utils.LinkOrLocator
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.json.JSONObject
 import org.readium.r2.shared.publication.Link
@@ -18,7 +21,7 @@ class ReadiumViewManager(
   val reactContext: ReactApplicationContext
 ) : ViewGroupManager<ReadiumView>() {
   private var svc = ReaderService(reactContext)
-
+  private val viewScope = CoroutineScope(Dispatchers.Main)
   override fun getName() = "ReadiumView"
 
   override fun createViewInstance(reactContext: ThemedReactContext): ReadiumView {
@@ -39,6 +42,20 @@ class ReadiumViewManager(
         MapBuilder.of(
           "phasedRegistrationNames",
           MapBuilder.of("bubbled", ON_TABLE_OF_CONTENTS)
+        )
+      )
+      .put(
+        ON_SEARCH,
+        MapBuilder.of(
+          "phasedRegistrationNames",
+          MapBuilder.of("bubbled", ON_SEARCH)
+        )
+      )
+      .put(
+        ON_PRESS_CONTENT,
+        MapBuilder.of(
+          "phasedRegistrationNames",
+          MapBuilder.of("bubbled", ON_PRESS_CONTENT)
         )
       )
       .build()
@@ -71,13 +88,14 @@ class ReadiumViewManager(
     val path = (file.getString("url") ?: "")
       .replace("^(file:/+)?(/.*)$".toRegex(), "$2")
     val location = file.getMap("initialLocation")
+    val passphrase = file.getString("passphrase")
     var initialLocation: LinkOrLocator? = null
 
     if (location != null) {
       initialLocation = locationToLinkOrLocator(location)
     }
 
-    view.file = File(path, initialLocation)
+    view.file = File(path, passphrase, initialLocation)
     this.buildForViewIfReady(view)
   }
 
@@ -117,6 +135,11 @@ class ReadiumViewManager(
     view.updateSettingsFromMap(settings.toHashMap())
   }
 
+  @ReactProp(name = "searchQuery")
+  fun setSearchQuery(view: ReadiumView, searchQuery: String) {
+    view.search(searchQuery)
+  }
+
   @ReactPropGroup(names = ["width", "height"], customType = "Style")
   fun setStyle(view: ReadiumView?, index: Int, value: Int) {
     if (index == 0) {
@@ -130,8 +153,8 @@ class ReadiumViewManager(
   private fun buildForViewIfReady(view: ReadiumView) {
     var file = view.file
     if (file != null && view.isViewInitialized) {
-      runBlocking {
-        svc.openPublication(file.path, file.initialLocation) { fragment ->
+      viewScope.launch {
+        svc.openPublication(file.path, file.passphrase, file.initialLocation) { fragment ->
           view.addFragment(fragment)
         }
       }
@@ -141,6 +164,8 @@ class ReadiumViewManager(
   companion object {
     var ON_LOCATION_CHANGE = "onLocationChange"
     var ON_TABLE_OF_CONTENTS = "onTableOfContents"
+    var ON_SEARCH = "onSearch"
+    var ON_PRESS_CONTENT = "onPressContent"
     var COMMAND_CREATE = 1
   }
 }

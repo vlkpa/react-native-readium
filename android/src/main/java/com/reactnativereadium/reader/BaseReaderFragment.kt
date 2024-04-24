@@ -11,6 +11,9 @@ import org.readium.r2.navigator.*
 import org.readium.r2.shared.publication.Locator
 import com.reactnativereadium.utils.EventChannel
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.debounce
+import org.readium.r2.shared.publication.services.search.SearchIterator
+import org.readium.r2.shared.publication.services.search.search
 
 /*
  * Base reader fragment class
@@ -38,7 +41,7 @@ abstract class BaseReaderFragment : Fragment() {
     val viewScope = viewLifecycleOwner.lifecycleScope
 
     channel.send(ReaderViewModel.Event.TableOfContentsLoaded(model.publication.tableOfContents))
-    navigator.currentLocator
+    navigator.currentLocator.debounce(300)
       .onEach { channel.send(ReaderViewModel.Event.LocatorUpdate(it)) }
       .launchIn(viewScope)
   }
@@ -73,4 +76,11 @@ abstract class BaseReaderFragment : Fragment() {
     return navigator.go(locator, animated)
   }
 
+
+  suspend fun search(query: String): SearchIterator? {
+    var searchIterator: SearchIterator? = null;
+    searchIterator = navigator.publication.search(query).onFailure { channel.send(ReaderViewModel.Event.Failure(it)) }
+      .getOrNull()
+    return searchIterator
+  }
 }

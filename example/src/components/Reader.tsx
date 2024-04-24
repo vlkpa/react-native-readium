@@ -31,6 +31,7 @@ export const Reader: React.FC = () => {
         setFile({
           url: EPUB_URL,
           initialLocation: INITIAL_LOCATION,
+          passphrase: 'tessst',
         });
       } else {
         const exists = await RNFS.exists(EPUB_PATH);
@@ -52,6 +53,7 @@ export const Reader: React.FC = () => {
         setFile({
           url: EPUB_PATH,
           initialLocation: INITIAL_LOCATION,
+          passphrase: 'tessst',
         });
       }
     }
@@ -67,6 +69,7 @@ export const Reader: React.FC = () => {
             <TableOfContents
               items={toc}
               onPress={(loc) => setLocation({ href: loc.href, type: 'application/xhtml+xml', title: loc.title })}
+              // onPress={(loc) => setLocation(loc)}
             />
           </View>
           <View style={styles.button}>

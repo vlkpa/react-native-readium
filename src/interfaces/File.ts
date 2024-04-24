@@ -8,6 +8,8 @@ export interface File {
    */
   url: string;
 
+  passphrase: string;
+
   /**
    * An optional location that the eBook will be opened at.
    */
